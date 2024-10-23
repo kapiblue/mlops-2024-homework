@@ -21,8 +21,13 @@ The function should: Download an image from S3, perform inference, save the resu
 Remember that the function name should follow specific convention, unless you change entrypoint (CMD) in the Dockerfile
 7. Create a Dockerfile that will be used to containerize your code. In that Dockerfile you should pre-download the model weights in a separate python script / or just copy the wieghts.
 Useful [Link](https://aws.amazon.com/blogs/compute/deploying-machine-learning-models-with-serverless-templates/)
-8. Build your docker
+8. Build your docker `docker build -t sample_lambda .`
 9. Test your docker image
+
+```bash
+docker run -p 9000:8080 -d --rm --name local_lambda sample_lambda
+```
+
 ```bash
 docker run -p 9000:8080 <repository_name>:<tag>
 curl -XPOST "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'

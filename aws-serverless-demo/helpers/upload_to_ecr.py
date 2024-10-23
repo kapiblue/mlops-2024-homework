@@ -50,7 +50,6 @@ def build_and_push_docker_image(repository_uri, repository_name, image_tag):
         repository_uri, tag=image_tag, stream=True, decode=True
     ):
         print(line)
-    
 
 
 if __name__ == "__main__":
