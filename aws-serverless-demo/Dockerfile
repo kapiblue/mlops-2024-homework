@@ -1,17 +1,22 @@
 # Start from the official AWS Lambda Python 3.8 image
 FROM public.ecr.aws/lambda/python:3.8
 
-# Install boto3 for interacting with AWS services and any other dependencies listed in requirements.txt (if present)
-RUN pip install boto3
+# Upgrade pip
+RUN python3.8 -m pip install --upgrade pip
+# Install boto3 for interacting with AWS services
+RUN python3.8 -m pip install boto3
 
-# If you have a requirements.txt file for additional dependencies, uncomment the following line:
-# RUN pip install -r ${LAMBDA_TASK_ROOT}/requirements.txt
+# Install model dependencies
+RUN python3.8 -m pip install torch==2.4.1 torchvision==0.19.1
 
 # Copy the entire directory (where lambda_function.py and other imports are) into the container
 COPY ./lambda_src/ ${LAMBDA_TASK_ROOT}
 
-# RUN python my_script.py 
-# Run a python script that will predownload the model. 
+# Download the pre-trained weights for the MobileNetV2 model into the container
+RUN python3.8 ./download_model.py
+
+# Just to test weights loading
+RUN python3.8 ./lambda_function.py
 
 # Command to run the Lambda function when invoked by AWS Lambda
 CMD ["lambda_function.lambda_handler"]
