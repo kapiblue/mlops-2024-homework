@@ -10,6 +10,16 @@ logger = logging.getLogger()
 
 logging.info("Downloading PyTorch model")
 
-model = mobilenet_v2(weights=MobileNet_V2_Weights)
+model = mobilenet_v2(weights=MobileNet_V2_Weights.DEFAULT)
 
-logging.info(f"Model loaded: {model}")
+
+# Download an example image from the pytorch website
+import urllib
+
+url, filename = ("https://github.com/pytorch/hub/raw/master/images/dog.jpg", "dog.jpg")
+try:
+    urllib.URLopener().retrieve(url, filename)
+except:
+    urllib.request.urlretrieve(url, filename)
+
+logging.info("Downloaded sample image")
