@@ -1,0 +1,9 @@
+aiohttp==3.10.10
+gdown==5.2.0
+lightning==2.4.0
+pandas==2.2.3
+pip-chill==1.0.3
+pysocks==1.7.1
+scikit-learn==1.5.2
+torchvision==0.20.1
+wandb==0.18.6
