@@ -1,3 +1,39 @@
-import torch
+from train_module import ResNetClassifier
+from data_module import ImageDataModule
+from torchvision import models
 import torch.nn as nn
-import lightning.pytorch as pl
+import pandas as pd
+import lightning as L
+import torch
+from lightning.pytorch.loggers import WandbLogger
+
+DATA_PATH = 'data/'
+BATCH_SIZE = 32
+DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+logger = WandbLogger(
+    project="MLOps2",
+)
+
+# Model architecture
+architecture = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+
+classifier = nn.Sequential(
+    nn.Linear(512, 512),
+    nn.ReLU(),
+    nn.Dropout(0.3),
+    nn.ReLU(),
+    nn.Linear(512, 1)
+)
+
+architecture.fc = classifier
+
+# Initialize the LightningModule
+model = ResNetClassifier(architecture)
+
+
+df = pd.read_csv(DATA_PATH + 'moved_parameters_mlops.csv')
+dm = ImageDataModule(main_path='data/', data=df, batch_size=BATCH_SIZE, num_workers=0)
+
+trainer = L.Trainer(max_epochs=20, accelerator=DEVICE, logger=logger)
+trainer.fit(model, dm)

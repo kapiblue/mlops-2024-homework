@@ -163,3 +163,7 @@ cython_debug/
 data/*.png
 data/*.csv
 data/*.zip
+
+MLOps2/
+lightning_logs/
+wandb/
