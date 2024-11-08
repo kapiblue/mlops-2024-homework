@@ -10,8 +10,10 @@ import pandas as pd
 # Define the ImageDataset class
 class ImageDataset(Dataset):
     def __init__(self, path: str, data: pd.DataFrame, transform=None) -> None:
-        self.image_paths = np.array([path + filename for filename in data['filename'].to_numpy()])
-        self.labels = data['epsilon'].to_numpy()
+        self.image_paths = np.array(
+            [path + filename for filename in data["filename"].to_numpy()]
+        )
+        self.labels = data["epsilon"].to_numpy()
         self.transform = transform
 
     def __getitem__(self, inx: int) -> tuple:
@@ -29,9 +31,16 @@ class ImageDataset(Dataset):
     def __len__(self) -> int:
         return len(self.image_paths)
 
+
 # Define the LightningDataModule class
 class ImageDataModule(L.LightningDataModule):
-    def __init__(self, main_path: str, data: pd.DataFrame, batch_size: int = 32, num_workers: int = 0):
+    def __init__(
+        self,
+        main_path: str,
+        data: pd.DataFrame,
+        batch_size: int = 32,
+        num_workers: int = 0,
+    ):
         super().__init__()
         self.main_path = main_path
         self.data = data
@@ -39,23 +48,45 @@ class ImageDataModule(L.LightningDataModule):
         self.num_workers = num_workers
 
         # Define the transform
-        self.transform = transforms.Compose([
-            transforms.ToPILImage(),
-            transforms.Resize((224, 224)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.5])
-        ])
+        self.transform = transforms.Compose(
+            [
+                transforms.ToPILImage(),
+                transforms.Resize((224, 224)),
+                transforms.ToTensor(),
+                transforms.Normalize(mean=[0.5], std=[0.5]),
+            ]
+        )
 
     def setup(self, stage=None):
         # Split the dataset into train and validation sets
-        train, valid = train_test_split(self.data, test_size=0.2, random_state=12, shuffle=True, stratify=self.data['epsilon'])
-        
+        train, valid = train_test_split(
+            self.data,
+            test_size=0.2,
+            random_state=12,
+            shuffle=True,
+            stratify=self.data["epsilon"],
+        )
+
         # Create the training and validation datasets
-        self.train_dataset = ImageDataset(path=self.main_path, data=train, transform=self.transform)
-        self.valid_dataset = ImageDataset(path=self.main_path, data=valid, transform=self.transform)
+        self.train_dataset = ImageDataset(
+            path=self.main_path, data=train, transform=self.transform
+        )
+        self.valid_dataset = ImageDataset(
+            path=self.main_path, data=valid, transform=self.transform
+        )
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
+        return DataLoader(
+            self.train_dataset,
+            batch_size=self.batch_size,
+            shuffle=True,
+            num_workers=self.num_workers,
+        )
 
     def val_dataloader(self):
-        return DataLoader(self.valid_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+        return DataLoader(
+            self.valid_dataset,
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+        )

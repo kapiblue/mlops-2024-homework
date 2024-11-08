@@ -11,7 +11,7 @@ class ResNetClassifier(L.LightningModule):
 
         if torch.cuda.is_available():
             self.model = self.model.cuda()
-        
+
         self.save_hyperparameters()
 
     def forward(self, x):
@@ -27,10 +27,12 @@ class ResNetClassifier(L.LightningModule):
         y_hat = y_hat.squeeze()
 
         loss = nn.BCEWithLogitsLoss()(y_hat, y)
-        self.log('train_steps/loss', loss, on_step=True, on_epoch=False)
-        self.log('train/loss', loss, on_step=False, on_epoch=True, logger=True, prog_bar=True)
+        self.log("train_steps/loss", loss, on_step=True, on_epoch=False)
+        self.log(
+            "train/loss", loss, on_step=False, on_epoch=True, logger=True, prog_bar=True
+        )
         return loss
-    
+
     def validation_step(self, batch, batch_idx):
         x, y = batch
 
@@ -41,8 +43,10 @@ class ResNetClassifier(L.LightningModule):
         y_hat = y_hat.squeeze()
 
         loss = nn.BCEWithLogitsLoss()(y_hat, y)
-        self.log('val_steps/loss', loss, on_step=True, on_epoch=False)
-        self.log('val/loss', loss, on_step=False, on_epoch=True, logger=True, prog_bar=True)
+        self.log("val_steps/loss", loss, on_step=True, on_epoch=False)
+        self.log(
+            "val/loss", loss, on_step=False, on_epoch=True, logger=True, prog_bar=True
+        )
         return loss
 
     def configure_optimizers(self):
