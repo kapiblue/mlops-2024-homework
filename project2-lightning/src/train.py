@@ -11,6 +11,13 @@ DATA_PATH = "data/"
 BATCH_SIZE = 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+import wandb
+
+wandb.init(
+    project="MLOps2",
+    entity="jankowskidaniel06-put",
+)
+
 logger = WandbLogger(
     project="MLOps2",
 )
@@ -31,5 +38,5 @@ model = ResNetClassifier(architecture)
 df = pd.read_csv(DATA_PATH + "moved_parameters_mlops.csv")
 dm = ImageDataModule(main_path="data/", data=df, batch_size=BATCH_SIZE, num_workers=0)
 
-trainer = L.Trainer(max_epochs=20, accelerator=DEVICE, logger=logger)
+trainer = L.Trainer(max_epochs=1, accelerator=DEVICE, logger=logger)
 trainer.fit(model, dm)
