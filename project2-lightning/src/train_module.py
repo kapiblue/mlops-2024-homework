@@ -5,14 +5,15 @@ import lightning as L
 
 # Define the LightningModule
 class ResNetClassifier(L.LightningModule):
-    def __init__(self, model):
+    def __init__(self, model, learning_rate=1e-3):
         super().__init__()
         self.model = model
+        self.learning_rate = learning_rate
 
         if torch.cuda.is_available():
             self.model = self.model.cuda()
 
-        self.save_hyperparameters()
+        self.save_hyperparameters(ignore=['model'])
 
     def forward(self, x):
         return self.model(x)

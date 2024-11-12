@@ -6,37 +6,75 @@ import pandas as pd
 import lightning as L
 import torch
 from lightning.pytorch.loggers import WandbLogger
+import optuna
+from optuna.integration import PyTorchLightningPruningCallback
 
 DATA_PATH = "data/"
-BATCH_SIZE = 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-import wandb
 
-wandb.init(
-    project="MLOps2",
-    entity="jankowskidaniel06-put",
-)
+def objective(trial):
+    learning_rate = trial.suggest_float("learning_rate", 1e-5, 1e-2, log=True)
+    batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
+    dropout_rate = trial.suggest_float("dropout_rate", 0.0, 0.5)
+    num_epochs = trial.suggest_int("num_epochs", 5, 15)
 
-logger = WandbLogger(
-    project="MLOps2",
-)
+    wandb_logger = WandbLogger(
+        project="MLOps2",
+        name=f"trial_{trial.number}",
+        entity="jankowskidaniel06-put",
+    )
 
-# Model architecture
-architecture = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
+    architecture = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 
-classifier = nn.Sequential(
-    nn.Linear(512, 512), nn.ReLU(), nn.Dropout(0.3), nn.ReLU(), nn.Linear(512, 1)
-)
+    classifier = nn.Sequential(
+        nn.Linear(512, 512),
+        nn.ReLU(),
+        nn.Dropout(dropout_rate),
+        nn.Linear(512, 1)
+    )
+    architecture.fc = classifier
 
-architecture.fc = classifier
+    model = ResNetClassifier(architecture, learning_rate=learning_rate)
 
-# Initialize the LightningModule
-model = ResNetClassifier(architecture)
+    df = pd.read_csv(DATA_PATH + "moved_parameters_mlops.csv")
+    dm = ImageDataModule(
+        main_path=DATA_PATH,
+        data=df,
+        batch_size=batch_size,
+        num_workers=0,
+    )
+
+    pruning_callback = PyTorchLightningPruningCallback(trial, monitor="val/loss")
+
+    trainer = L.Trainer(
+        max_epochs=num_epochs,
+        accelerator=DEVICE,
+        logger=wandb_logger,
+        callbacks=[pruning_callback],
+        enable_checkpointing=False,
+        log_every_n_steps=50
+    )
+
+    trainer.fit(model, dm)
+
+    val_loss = trainer.callback_metrics.get("val/loss")
+    if val_loss is None:
+        return float('inf')
+
+    return val_loss.item()
 
 
-df = pd.read_csv(DATA_PATH + "moved_parameters_mlops.csv")
-dm = ImageDataModule(main_path="data/", data=df, batch_size=BATCH_SIZE, num_workers=0)
+if __name__ == "__main__":
+    study = optuna.create_study(direction="minimize")
+    study.optimize(objective, n_trials=20)
 
-trainer = L.Trainer(max_epochs=1, accelerator=DEVICE, logger=logger)
-trainer.fit(model, dm)
+    print("Number of ended trials: ", len(study.trials))
+    print("Best trial:")
+    trial = study.best_trial
+
+    print("  Validation loss: ", trial.value)
+    print("  Best hyperparameters: ")
+    for key, value in trial.params.items():
+        print(f"    {key}: {value}")
+
