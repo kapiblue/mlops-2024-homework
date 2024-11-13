@@ -6,6 +6,10 @@ import pandas as pd
 import lightning as L
 import torch
 from lightning.pytorch.loggers import WandbLogger
+import argparse
+
+parser = argparse.ArgumentParser(description='Process arguments.')
+parser.add_argument('run_name', type=str, help='WandB run name')
 
 DATA_PATH = "data/"
 BATCH_SIZE = 32
@@ -16,6 +20,7 @@ import wandb
 wandb.init(
     project="MLOps2",
     entity="jankowskidaniel06-put",
+    name=parser.parse_args().run_name,
 )
 
 logger = WandbLogger(
