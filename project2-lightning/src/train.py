@@ -6,8 +6,13 @@ import pandas as pd
 import lightning as L
 import torch
 from lightning.pytorch.loggers import WandbLogger
+import argparse
+import wandb
 import optuna
 from optuna.integration import PyTorchLightningPruningCallback
+
+parser = argparse.ArgumentParser(description='Process arguments.')
+parser.add_argument('run_name', type=str, help='WandB run name')
 
 DATA_PATH = "data/"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -17,7 +22,7 @@ def objective(trial):
     learning_rate = trial.suggest_float("learning_rate", 1e-5, 1e-2, log=True)
     batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
     dropout_rate = trial.suggest_float("dropout_rate", 0.0, 0.5)
-    num_epochs = trial.suggest_int("num_epochs", 5, 15)
+    num_epochs = 2 # trial.suggest_int("num_epochs", 3, 10)
 
     wandb_logger = WandbLogger(
         project="MLOps2",
@@ -64,17 +69,16 @@ def objective(trial):
 
     return val_loss.item()
 
-
 if __name__ == "__main__":
-    study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=20)
 
+    study = optuna.load_study(
+        study_name="distributed-example", storage="mysql://root@localhost/example"
+    )
+    study.optimize(objective, n_trials=3)
     print("Number of ended trials: ", len(study.trials))
     print("Best trial:")
     trial = study.best_trial
-
     print("  Validation loss: ", trial.value)
     print("  Best hyperparameters: ")
     for key, value in trial.params.items():
         print(f"    {key}: {value}")
-
