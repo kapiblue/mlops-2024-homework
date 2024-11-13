@@ -18,7 +18,7 @@ I created the custom, very small and simple dataset based on my (own ;)) previou
 4. Run the container with wandb.
 
 ```bash
-wandb docker-run --rm --name ptl_cont ptl_train
+wandb docker-run --rm --name ptl_cont -e MYSQL_ROOT_PASSWORD=rootpassword ptl_train
 ```
 
 https://docs.wandb.ai/ref/cli/wandb-docker-run
