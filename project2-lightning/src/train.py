@@ -17,6 +17,7 @@ parser.add_argument('run_name', type=str, help='WandB run name')
 DATA_PATH = "data/"
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
+
 def objective(trial):
     learning_rate = trial.suggest_float("learning_rate", 1e-5, 1e-2, log=True)
     batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
