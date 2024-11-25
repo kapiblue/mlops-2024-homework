@@ -25,15 +25,15 @@ if __name__ == "__main__":
     architecture.load_state_dict(torch.load(weights_path))
 
     parameters_to_prune = (
-        (architecture.conv1, 'weight'),
-        (architecture.conv2, 'weight'),
-        (architecture.conv3, 'weight'),
-        (architecture.conv4, 'weight'),
-        (architecture.conv5, 'weight'),
-        (architecture.conv6, 'weight'),
-        (architecture.fc1, 'weight'),
-        (architecture.fc2, 'weight'),
-        (architecture.fc3, 'weight'),
+        (architecture.conv1, "weight"),
+        (architecture.conv2, "weight"),
+        (architecture.conv3, "weight"),
+        (architecture.conv4, "weight"),
+        (architecture.conv5, "weight"),
+        (architecture.conv6, "weight"),
+        (architecture.fc1, "weight"),
+        (architecture.fc2, "weight"),
+        (architecture.fc3, "weight"),
     )
 
     prune.global_unstructured(
@@ -47,9 +47,7 @@ if __name__ == "__main__":
 
     trainer.test(model, test_loader)
 
-    results = {
-        "global_pruning" : model.test_results
-    }
+    results = {"global_pruning": model.test_results}
 
     with open(results_path, "w") as f:
         json.dump(results, f)

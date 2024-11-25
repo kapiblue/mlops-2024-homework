@@ -45,7 +45,6 @@ if __name__ == "__main__":
 
     quantized_model_results = quantized_classifier.test_results
 
-
     results = {
         "float32": float_model_results,
         "quantized": quantized_model_results,
@@ -72,7 +71,9 @@ if __name__ == "__main__":
     ax1.set_ylim(0, 1)  # Assuming accuracy is between 0 and 1
 
     # Bar plot for inference time
-    ax2.bar(labels, [float_inference_time, int8_inference_time], color=["blue", "orange"])
+    ax2.bar(
+        labels, [float_inference_time, int8_inference_time], color=["blue", "orange"]
+    )
     ax2.set_title("Average Inference Time")
     ax2.set_ylabel("Inference Time (seconds)")
     ax2.set_ylim(
