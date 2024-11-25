@@ -2,4 +2,4 @@ data/
 src/__pycache__/
 plots/
 weights/
-models/*.pth
+# models/*.pth
