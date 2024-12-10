@@ -1,6 +1,9 @@
 import matplotlib.pyplot as plt
 from torchvision.utils import make_grid
 import os
+import torch
+
+from src.conv6 import Conv6
 
 
 def plot_sample_images(images):
@@ -34,3 +37,49 @@ def create_folders(folders: list):
     for folder in folders:
         if not os.path.exists(folder):
             os.makedirs(folder)
+
+
+def print_conv6_sparsity(model: Conv6, pruning_method: str = ""):
+
+    # Put modules in a dictionary
+    modules = {
+        "conv1": model.conv1,
+        "conv2": model.conv2,
+        "conv3": model.conv3,
+        "conv4": model.conv4,
+        "conv5": model.conv5,
+        "conv6": model.conv6,
+        "fc1": model.fc1,
+        "fc2": model.fc2,
+        "fc3": model.fc3,
+    }
+    # Calculate sparsity in a loop and collect results
+    sparsities = {}
+    total_n_zero_elements = 0
+    total_n_elements = 0
+    for module_name, module in modules.items():
+        n_zero_elements = torch.sum(module.weight == 0)
+        n_elements = module.weight.nelement()
+        sparsity = 100.0 * float(n_zero_elements) / float(n_elements)
+        sparsities[module_name] = sparsity
+        total_n_zero_elements += n_zero_elements
+        total_n_elements += n_elements
+
+    global_sparsity = 100.0 * float(total_n_zero_elements) / float(total_n_elements)
+
+    # Print results
+    for module_name, sparsity in sparsities.items():
+        print(f"Sparsity in {module_name} : {sparsity:.2f}%")
+
+    print(f"Global sparsity for {pruning_method} pruning: {global_sparsity:.2f}%")
+
+    save_path = os.path.join(
+        os.getcwd(), "plots", f"local_sparsities_{pruning_method}.png"
+    )
+    plt.bar(sparsities.keys(), sparsities.values())
+    plt.ylabel("Sparsity (%)")
+    plt.title(
+        f"Local sparsities for {pruning_method} pruning.\nGlobal sparsity: {global_sparsity:.2f}%"
+    )
+    plt.savefig(save_path)
+    plt.close()

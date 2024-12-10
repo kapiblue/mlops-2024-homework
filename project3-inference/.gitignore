@@ -1,6 +1,5 @@
 data/
 src/__pycache__/
-plots/
 weights/
 models/*.pth
 lightning_logs/

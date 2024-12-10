@@ -1,6 +1,7 @@
 from torch.quantization import prepare, convert
 import torch
 
+
 # Calibrate function for quantization
 def calibrate_model(model, data_loader, device):
     model.eval()
