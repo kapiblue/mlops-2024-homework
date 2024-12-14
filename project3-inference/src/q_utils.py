@@ -1,6 +1,7 @@
 from torch.quantization import prepare, convert
 import torch
 
+
 # Calibrate function for quantization
 def calibrate_model(model, data_loader, device):
     model.eval()
@@ -11,18 +12,27 @@ def calibrate_model(model, data_loader, device):
             model(x.to(device))
             break
 
+
 # Quantize the trained model
 def quantize_model(trained_model, data_loader, device):
     print("\nQuantizing the model with static quantization...")
 
     # Set quantization config
-    trained_model.qconfig = torch.quantization.get_default_qconfig('x86')  # fbgemm is optimized for x86 CPUs
+    trained_model.qconfig = torch.quantization.get_default_qconfig(
+        "x86"
+    )  # fbgemm is optimized for x86 CPUs
 
     # Fuse layers for better quantization (Conv + ReLU)
     fused_model = torch.quantization.fuse_modules(
         trained_model,
-        [['conv1', 'relu1'], ['conv2', 'relu2'], ['conv3', 'relu3'], ['conv4', 'relu4'],
-         ['conv5', 'relu5'], ['conv6', 'relu6']]
+        [
+            ["conv1", "relu1"],
+            ["conv2", "relu2"],
+            ["conv3", "relu3"],
+            ["conv4", "relu4"],
+            ["conv5", "relu5"],
+            ["conv6", "relu6"],
+        ],
     )
 
     # Prepare the model for static quantization

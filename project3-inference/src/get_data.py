@@ -16,10 +16,11 @@ num_workers = 2 if torch.cuda.is_available() else 0
 
 
 def get_dataloaders(BATCH_SIZE):
+    print("Getting dataloaders")
     train_dataset = CIFAR10(
-        root="data/", train=True, download=True, transform=transform
+        root="data", train=True, download=False, transform=transform
     )
-    test_dataset = CIFAR10(root="data/", train=False, transform=transform)
+    test_dataset = CIFAR10(root="data", train=False, transform=transform)
 
     train_dataset, val_dataset = torch.utils.data.random_split(
         train_dataset, [train_size, val_size]
@@ -29,13 +30,13 @@ def get_dataloaders(BATCH_SIZE):
         train_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2
     )
     val_loader = DataLoader(
-        val_dataset, batch_size=BATCH_SIZE, shuffle=True, num_workers=2
+        val_dataset, batch_size=BATCH_SIZE, shuffle=False, num_workers=2
     )
 
     test_loader = DataLoader(
         test_dataset,
         batch_size=BATCH_SIZE,
-        shuffle=True,
+        shuffle=False,
         num_workers=2,
         drop_last=True,
     )

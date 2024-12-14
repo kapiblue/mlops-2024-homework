@@ -1,0 +1,1 @@
+{"float32": {"accuracy": 0.7657630443572998, "f1_score": 0.7653846740722656, "average_inference_time": 0.11787169956299196}, "quantized": {"accuracy": 0.7633534073829651, "f1_score": 0.763630211353302, "average_inference_time": 0.030699547514858015}}

@@ -14,11 +14,15 @@ Publication: https://arxiv.org/abs/1803.03635
 
 ### Running the code
 
+The default location of data is `project3-inference/data`.
+
 Open `project3-inference` in terminal and run:
 
 ```bash
-python -m src.train_lth
+python -m src.quantize
 ```
+
+Results should be saved to json in `results`.
 
 ### Architecture summary
 
